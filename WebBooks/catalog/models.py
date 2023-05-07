@@ -24,7 +24,7 @@ class Author(models.Model):
     last_name = models.CharField(max_length=100,
                                  help_text='Введите фамилию автора',
                                  verbose_name='Фамилия автора')
-    date_of_birtg = models.DateField(help_text='Введите дату рождения',
+    date_of_birth = models.DateField(help_text='Введите дату рождения',
                                      verbose_name='Дата рождения',
                                      null=True,
                                      blank=True)
@@ -63,8 +63,13 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolutle_url(self):
+    def get_absolute_url(self):
         return reverse('book-detail', args=[str(self.id)])
+
+    def display_author(self):
+        return ', '.join([author.last_name for author in self.author.all()])
+
+    display_author.short_description = 'Авторы'
 
 class Status(models.Model):
     name = models.CharField(max_length=20,
