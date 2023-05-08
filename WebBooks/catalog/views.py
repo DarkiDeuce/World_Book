@@ -13,3 +13,10 @@ def index(requst):
 
 class BookListView(generic.ListView):
     model = Book
+
+class BookDetailView(generic.DetailView):
+    model = Book
+    paginate_by = 3
+
+class AuthorsListView(generic.ListView):
+    model = Author
