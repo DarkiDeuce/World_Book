@@ -1,11 +1,13 @@
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from catalog import views
 
 urlpatterns = [
-    path('', views.index, name='home'),
     path('admin/', admin.site.urls),
-    re_path(r'^books$', views.BookListView.as_view(), name='books'),
+    path('', views.index, name='home'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    re_path(r'^books/$', views.BookListView.as_view(), name='books'),
     re_path(r'^book/(?P<pk>\d+)$', views.BookDetailView.as_view(), name='book-detail'),
     re_path(r'^authors/$', views.AuthorsListView.as_view(), name='authors'),
+    re_path(r'^mybooks/$', views.LoanedBooksByUserListView.as_view(), name='my-borrowed'),
 ]
