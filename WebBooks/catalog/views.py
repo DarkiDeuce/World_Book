@@ -1,10 +1,48 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import *
 from .models import Book, Author, BookInstance, Genre
 from django.views import generic
 from django.template.loader import render_to_string
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import AuthorsForm
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.contrib.auth.forms import UserCreationForm
+from .forms import RegistrationForm
+from django.utils import timezone
+
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 3
+
+class BookDetailView(generic.DetailView):
+    model = Book
+
+class AuthorsListView(generic.ListView):
+    model = Author
+    paginate_by = 4
+
+class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='2').order_by('due_back')
+
+class BookCreate(CreateView):
+    model = Book
+    fields = '__all__'
+    success_url = reverse_lazy('books')
+
+class BookUpdate(UpdateView):
+    model = Book
+    fields = '__all__'
+    success_url = reverse_lazy('books')
+
+class BookDelete(DeleteView):
+    model = Book
+    success_url = reverse_lazy('books')
 
 def index(requst):
     num_books = Book.objects.all().count()
@@ -20,6 +58,16 @@ def index(requst):
                                                  'num_authors': num_authors,
                                                  'num_visits': num_visits,}
                   )
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # перенаправление на страницу входа после успешной регистрации
+    else:
+        form = RegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 def authors_add(request):
     author = Author.objects.all()
@@ -59,8 +107,6 @@ def edit(request, id):
         author.date_of_birth = request.POST.get('date_of_birth')
         author.date_of_death = request.POST.get('date_of_death')
 
-        print(author.date_of_birth)
-
         author.save()
 
         return HttpResponseRedirect('/authors_add/')
@@ -68,21 +114,14 @@ def edit(request, id):
     else:
         return render(request, 'edit1.html', {'author': author})
 
-class BookListView(generic.ListView):
-    model = Book
-    paginate_by = 3
+def order(request, id):
+    copy = BookInstance.objects.get(id=id)
 
-class BookDetailView(generic.DetailView):
-    model = Book
+    if request.method == 'POST':
+        copy.status_id = 2
+        copy.due_back = timezone.now() + timezone.timedelta(days=7)
+        copy.borrower = request.user
 
-class AuthorsListView(generic.ListView):
-    model = Author
-    paginate_by = 4
+        copy.save()
 
-class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
-    model = BookInstance
-    template_name = 'catalog/bookinstance_list_borrowed_user.html'
-    paginate_by = 10
-
-    def get_queryset(self):
-        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='2').order_by('due_back')
+    return render(request, 'catalog/order.html', {'book': copy.book})

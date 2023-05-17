@@ -19,12 +19,12 @@
 
         <p><label>Измените дату рождения</label><br>
             <input type="date" name="date_of_birth"
-                   value="{{ author.date_of_birth }}" />
+                   value="{{ author.date_of_birth|date:'Y-m-d' }}" />
         </p>
 
         <p><label>Измените дату смерти</label><br>
             <input type="date" name="date_of_death"
-                   value="{{ author.date_of_death }}" />
+                   value="{{ author.date_of_death|date:'Y-m-d' }}" />
         </p>
 
         <input type="submit" value="Сохранить">
