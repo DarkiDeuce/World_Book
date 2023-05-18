@@ -5,12 +5,12 @@ from catalog import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='home'),
+    path('register/', views.register, name='register'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('authors_add/', views.authors_add, name='authors_add'),
     path('create/', views.create, name='create_author'),
     path('delete/<int:id>/', views.delete, name='delete_author'),
     path('edit1/<int:id>/', views.edit, name='edit_author'),
-    path('register/', views.register, name='register'),
     path('order/<int:id>', views.order, name='order'),
     re_path(r'^books/$', views.BookListView.as_view(), name='books'),
     re_path(r'^book/(?P<pk>\d+)$', views.BookDetailView.as_view(), name='book-detail'),

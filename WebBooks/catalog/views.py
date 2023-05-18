@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import *
-from .models import Book, Author, BookInstance, Genre
+from .models import Book, Author, BookInstance
 from django.views import generic
-from django.template.loader import render_to_string
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import AuthorsForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm
 from django.utils import timezone
 
